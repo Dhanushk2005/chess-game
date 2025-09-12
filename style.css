@@ -46,8 +46,8 @@ h3 {
 
 .chessboard {
     display: grid;
-    grid-template-columns: repeat(8, 60px);
-    grid-template-rows: repeat(8, 60px);
+    grid-template-columns: repeat(8, 3.8rem);
+    grid-template-rows: repeat(8, 3.8rem);
     margin-top: 10px;
     height: fit-content;
     width: fit-content;
@@ -57,22 +57,55 @@ h3 {
 
 .chessboard div {
     font-size: 2.7rem;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     user-select: none;
     border: 0.5px solid rgba(247, 55, 8, 0.521);
+    position: relative;
+    z-index: 1;
 }
 
 .chessboard div:hover {
     background-color: orange;
 }
-
+.highlight{
+    border: 1px solid rgba(48, 46, 46, 0.342);
+    border-radius: 50%;
+    height: 1vw;
+    width: 1vw;
+    background-image: linear-gradient(to top , blue , violet);
+    position: absolute;
+    z-index: 2;
+}
 .black {
     background-color: rgb(223, 113, 45);
-    min-height: 20px;
-    min-width: 20px;
-
 }
 
 .white {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.836);
+    
 }
+
+.white_swap{
+    position: absolute;
+    top: 7vh;
+    left: 15%;
+    height: 100vh;
+    width: 30vw;
+    display: none;
+    grid-template-columns: (4 , auto);
+}
+
+.black_swap{
+    position: absolute;
+    left: 15%;
+    top: 7vh;
+    height: 100vh;
+    width: 30vw;
+    display: none;
+    grid-template-columns: (4 , auto);
+ }
+ .coin img{
+    height: 13vh;
+ }
