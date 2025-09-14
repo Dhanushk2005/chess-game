@@ -14,6 +14,8 @@ body {
     width: fit-content;
     height: fit-content;
     padding: 8px;
+    position: relative;
+    z-index: 1;
 }
 h3 {
     color: rgb(7, 8, 92);
@@ -46,13 +48,12 @@ h3 {
 
 .chessboard {
     display: grid;
-    grid-template-columns: repeat(8, 3.8rem);
-    grid-template-rows: repeat(8, 3.8rem);
+    grid-template-columns: repeat(8, 4em);
+    grid-template-rows: repeat(8, 4em);
     margin-top: 10px;
     height: fit-content;
     width: fit-content;
     border: 3px solid rgb(253, 81, 2);
-    z-index: 3;
 }
 
 .chessboard div {
@@ -89,23 +90,29 @@ h3 {
 
 .white_swap{
     position: absolute;
-    top: 7vh;
-    left: 15%;
+    left: 10%;
+    top: 0;
     height: 100vh;
-    width: 30vw;
+    user-select: none;
+    width: 80vw;
     display: none;
-    grid-template-columns: (4 , auto);
+    justify-content: space-around;
+    z-index: 2;
 }
 
 .black_swap{
     position: absolute;
-    left: 15%;
-    top: 7vh;
+    top: 0;
     height: 100vh;
-    width: 30vw;
+    left: 10%;
+    width: 80vw;
+    user-select: none;
+    
     display: none;
-    grid-template-columns: (4 , auto);
+    justify-content: space-around;
+    z-index: 2;
  }
  .coin img{
     height: 13vh;
+    cursor: pointer;
  }

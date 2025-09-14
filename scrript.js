@@ -1,4 +1,5 @@
 const board = document.querySelector(".chessboard");
+const total_board = document.querySelector(".total_board");
 const initialSetup = [
     ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
     ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
@@ -27,6 +28,7 @@ const prev_check_pos = new Array();
 const prev_pos = [];
 const black_coins = ["♜", "♞", "♝", "♛", "♚", "♟"];
 let move_count = 0;
+isSwaping = false;
 const allElement = document.querySelectorAll(".chessboard div");
 const map_function = new Map([["♟", pawn_possible_move],
 ["♙", pawn_possible_move],
@@ -62,7 +64,7 @@ allElement.forEach(Element => {
         if (Element.textContent !== "" && !isClicked && (black_coins.includes(val) === (move_count % 2 !== 0))) {
             tilt(Element);
             //call the function to make a move
-            map_function.get(val)(Element, row, col, false, false);
+            map_function.get(val)(row, col, false, false);
 
             prev.push(Element);
             prev_pos[0] = row;
@@ -72,7 +74,7 @@ allElement.forEach(Element => {
             move_coin(prev_pos[0], prev_pos[1], row, col);
             let piece = initialSetup[row][col];
             let isblack = black_coins.includes(piece);
-            if(piece === "♟" && row === 7 || piece === "♙" && row === 0){
+            if((piece === "♟" && row === 7 )|| (piece === "♙" && row === 0)){
                 show_change_option(row , col , isblack);
             }
             let check_for_opponent = checking_check_pos(!isblack);
@@ -94,7 +96,7 @@ allElement.forEach(Element => {
 })
 
 //To track pawn Move
-function pawn_possible_move(Element, row, col, isChecking, isCheckMate) {
+function pawn_possible_move(row, col, isChecking, isCheckMate) {
     let isblack = (initialSetup[row][col] === ("♟")) ? true : false;
     let sign = 1;
     let start = 1;
@@ -108,29 +110,15 @@ function pawn_possible_move(Element, row, col, isChecking, isCheckMate) {
     let pos3 = [row + (sign * 1), col + 1];
     let pos4 = [row + (sign * 1), col - 1];
     let Check = false;
-    let piece = initialSetup[pos1[0]][pos1[1]];
-    if (isValid_position(pos1[0], pos1[1]) && piece === "" && !isChecking) {
-        let element = document.querySelector(`[data-row = "${pos1[0]}"][data-col = "${pos1[1]}"]`);
-        
-            move_coin(row, col, pos1[0], pos1[1]);
-            let isCheck_pos = checking_check_pos(isblack);
-            move_coin(pos1[0], pos1[1], row, col);
+    if(isValid_position(pos1[0], pos1[1])){
+        let piece = initialSetup[pos1[0]][pos1[1]];
+        if (piece === "" && !isChecking) {
+            let element = document.querySelector(`[data-row = "${pos1[0]}"][data-col = "${pos1[1]}"]`);
             
-        if (!isCheck_pos) {
-            if (!isCheckMate) {
-                highlight(element);
-                prev.push(element);
-            }
-            else {
-                return false;
-            }
-        }
-        
-        if (row === start && isValid_position(pos2[0], pos2[1]) && initialSetup[pos2[0]][pos2[1]] === "") {
-            let element = document.querySelector(`[data-row = "${pos2[0]}"][data-col = "${pos2[1]}"]`);
-            move_coin(row, col, pos2[0], pos2[1]);
-            let isCheck_pos = checking_check_pos(isblack);
-            move_coin(pos2[0], pos2[1], row, col);
+                move_coin(row, col, pos1[0], pos1[1]);
+                let isCheck_pos = checking_check_pos(isblack);
+                move_coin(pos1[0], pos1[1], row, col);
+                
             if (!isCheck_pos) {
                 if (!isCheckMate) {
                     highlight(element);
@@ -141,51 +129,71 @@ function pawn_possible_move(Element, row, col, isChecking, isCheckMate) {
                 }
             }
             
-        }
-    }
-    piece = initialSetup[pos3[0]][pos3[1]];
-    if (isValid_position(pos3[0], pos3[1]) && isFight_position(pos3[0], pos3[1], isblack, black_coins.includes(piece))) {
-        if (!isChecking) {
-            let element = document.querySelector(`[data-row = "${pos3[0]}"][data-col = "${pos3[1]}"]`);
-            move_coin(row, col, pos3[0], pos3[1]);
-            let isCheck_pos = checking_check_pos(isblack);
-            move_coin_back(pos3[0], pos3[1], row, col, piece);
-            if (!isCheck_pos) {
-                if (!isCheckMate) {
-                    coin_kill_highlight(element);
-                    prev.push(element);
+            if (row === start && isValid_position(pos2[0], pos2[1]) && initialSetup[pos2[0]][pos2[1]] === "") {
+                let element = document.querySelector(`[data-row = "${pos2[0]}"][data-col = "${pos2[1]}"]`);
+                move_coin(row, col, pos2[0], pos2[1]);
+                let isCheck_pos = checking_check_pos(isblack);
+                move_coin(pos2[0], pos2[1], row, col);
+                if (!isCheck_pos) {
+                    if (!isCheckMate) {
+                        highlight(element);
+                        prev.push(element);
+                    }
+                    else {
+                        return false;
+                    }
                 }
-                else {
-                    return false;
-                }
+                
             }
-            
-        }
-        if (piece === "♔" || piece === "♚") {
-            Check = Check || isCheck(piece, isblack);
         }
     }
-    piece = initialSetup[pos4[0]][pos4[1]];
-    if (isValid_position(pos4[0], pos4[1]) && isFight_position(pos4[0], pos4[1], isblack, black_coins.includes(piece))) {
-        if (!isChecking) {
-            let element = document.querySelector(`[data-row = "${pos4[0]}"][data-col = "${pos4[1]}"]`);
-            move_coin(row, col, pos4[0], pos4[1]);
-            let isCheck_pos = checking_check_pos(isblack);
-            move_coin_back(pos4[0], pos4[1], row, col, piece);
-            if (!isCheck_pos) {
-                if (!isCheckMate) {
-                    coin_kill_highlight(element);
-                    prev.push(element);
+    if(isValid_position(pos3[0], pos3[1])){
+        let piece = initialSetup[pos3[0]][pos3[1]];
+        if (isFight_position(pos3[0], pos3[1], isblack, black_coins.includes(piece))) {
+            if (!isChecking) {
+                let element = document.querySelector(`[data-row = "${pos3[0]}"][data-col = "${pos3[1]}"]`);
+                move_coin(row, col, pos3[0], pos3[1]);
+                let isCheck_pos = checking_check_pos(isblack);
+                move_coin_back(pos3[0], pos3[1], row, col, piece);
+                if (!isCheck_pos) {
+                    if (!isCheckMate) {
+                        coin_kill_highlight(element);
+                        prev.push(element);
+                    }
+                    else {
+                        return false;
+                    }
                 }
-                else {
-                    return false;
-                }
+                
+            }
+            if (piece === "♔" || piece === "♚") {
+                Check = Check || isCheck(piece, isblack);
+            }
+        }
+    }
+    if(isValid_position(pos4[0], pos4[1])){
+        let piece = initialSetup[pos4[0]][pos4[1]];
+        if (isFight_position(pos4[0], pos4[1], isblack, black_coins.includes(piece))) {
+            if (!isChecking) {
+                let element = document.querySelector(`[data-row = "${pos4[0]}"][data-col = "${pos4[1]}"]`);
+                move_coin(row, col, pos4[0], pos4[1]);
+                let isCheck_pos = checking_check_pos(isblack);
+                move_coin_back(pos4[0], pos4[1], row, col, piece);
+                if (!isCheck_pos) {
+                    if (!isCheckMate) {
+                        coin_kill_highlight(element);
+                        prev.push(element);
+                    }
+                    else {
+                        return false;
+                    }
 
+                }
+                
             }
-            
-        }
-        if (piece === "♔" || piece === "♚") {
-            Check = Check || isCheck(piece, isblack);
+            if (piece === "♔" || piece === "♚") {
+                Check = Check || isCheck(piece, isblack);
+            }
         }
     }
     if (isCheckMate) return true;
@@ -194,7 +202,7 @@ function pawn_possible_move(Element, row, col, isChecking, isCheckMate) {
 }
 
 //to track Horse Move
-function horse_possible_move(element, row, col, isChecking, isCheckMate) {
+function horse_possible_move(row, col, isChecking, isCheckMate) {
     let direction = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]];
     let isblack = black_coins.includes(initialSetup[row][col]);
     let Check = false;
@@ -248,7 +256,7 @@ function horse_possible_move(element, row, col, isChecking, isCheckMate) {
 }
 
 //To track Bishop Move
-function bishop_possible_move(Element, row, col, isChecking, isCheckMate) {
+function bishop_possible_move(row, col, isChecking, isCheckMate) {
     let isblack = black_coins.includes(initialSetup[row][col]);
     let direction = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
     let Check = false;
@@ -308,7 +316,7 @@ function bishop_possible_move(Element, row, col, isChecking, isCheckMate) {
 
 
 //To track Kings Move
-function king_possible_move(Element, row, col, isChecking, isCheckMate) {
+function king_possible_move(row, col, isChecking, isCheckMate) {
     let isblack = initialSetup[row][col] === '♚';
     let direction = [[-1, 0], [-1, -1], [1, 0], [1, 1], [-1, 1], [1, -1], [0, -1], [0, 1]];
     let Check = false;
@@ -361,16 +369,16 @@ function king_possible_move(Element, row, col, isChecking, isCheckMate) {
 }
 
 //To track Queens Move
-function queen_possible_move(Element, row, col, isChecking, isCheckMate) {
+function queen_possible_move(row, col, isChecking, isCheckMate) {
     let Check = false;
-    Check = Check || elephant_possible_move(Element, row, col, isChecking, isCheckMate);
-    Check = Check || bishop_possible_move(Element, row, col, isChecking, isCheckMate);
+    Check = Check || elephant_possible_move(row, col, isChecking, isCheckMate);
+    Check = Check || bishop_possible_move(row, col, isChecking, isCheckMate);
     if (isCheckMate) return true;
     return Check;
 }
 
 //To track Elephants Move
-function elephant_possible_move(Element, row, col, isChecking, isCheckMate) {
+function elephant_possible_move(row, col, isChecking, isCheckMate) {
     let isblack = black_coins.includes(initialSetup[row][col]);
     let direction = [[-1, 0], [1, 0], [0, -1], [0, 1]];
     let Check = false;
@@ -461,7 +469,7 @@ function checking_check_pos(isblack) {
             let piece = initialSetup[i][j];
             if (isblack !== black_coins.includes(piece) && piece !== "") {
                 let temp = document.querySelector(`[data-row = "${i}"][data-col = "${j}"]`);
-                let check = map_function.get(piece)(temp, i, j, true, false);
+                let check = map_function.get(piece)(i, j, true, false);
                 if (check) {
                     check_highlight(temp);
                     prev_check_pos.push(temp);
@@ -485,8 +493,7 @@ function find_check_mate(isblack) {
         for (let j = 0; j < 8; j++) {
             let piece = initialSetup[i][j];
             if (isblack === black_coins.includes(piece) && piece !== "") {
-                let temp = document.querySelector(`[data-row = "${i}"][data-col = "${j}"]`);
-                let check_mate = map_function.get(piece)(temp, i, j, false, true);
+                let check_mate = map_function.get(piece)(i, j, false, true);
                 if (!check_mate) {
                     return false;
                 }
@@ -496,9 +503,24 @@ function find_check_mate(isblack) {
     return true;
 }
 
-function show_change_option(row , col , isblack){
-    let temp = document.querySelector(`[data-row = "${row}"][data-col = "${col}"]`);
-
+function show_change_option(isblack){
+    let swap ;
+    if(isblack){
+        swap = document.querySelector(".black_swap");
+    }
+    else{
+        swap = document.querySelector(".white_swap");
+    }
+    total_board.style.marginTop = "15vh";
+    swap.style.display = "flex";
+    total_board.style.opacity = "0.7";
+    let swap_img = swap.children;
+    for (let child in swap_img){
+        child.addEventListener(click , () =>{
+            let piece = child.dataset.value;
+            
+        })
+    }
 }
 function update_coin() {
     for (var i = 0; i < 8; i++) {
