@@ -21,7 +21,7 @@ h3 {
     color: rgb(7, 8, 92);
 }
 .left , .right{
-    height: 480px;
+    height: calc(4.5em * 8);
     display: flex;
     flex-direction: column;
     justify-content: space-around;
@@ -43,13 +43,13 @@ h3 {
     display: flex;
     justify-content: space-around;
     margin-left: 20px;
-    width: 480px;
+    width: calc(4.5em * 8);
 }
 
 .chessboard {
     display: grid;
-    grid-template-columns: repeat(8, 4em);
-    grid-template-rows: repeat(8, 4em);
+    grid-template-columns: repeat(8, 4.5em);
+    grid-template-rows: repeat(8, 4.5em);
     margin-top: 10px;
     height: fit-content;
     width: fit-content;
@@ -73,8 +73,8 @@ h3 {
 .highlight{
     border: 1px solid rgba(48, 46, 46, 0.342);
     border-radius: 50%;
-    height: 1vw;
-    width: 1vw;
+    height: 12px;
+    width: 12px;
     background-image: linear-gradient(to top , blue , violet);
     position: absolute;
     z-index: 2;
