@@ -1,5 +1,8 @@
 const board = document.querySelector(".chessboard");
 const total_board = document.querySelector(".total_board");
+let BlackCasting = true;
+let WhiteCasting = true;
+let Casting = false;
 const initialSetup = [
   ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
   ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
@@ -46,6 +49,7 @@ const map_function = new Map([
 allElement.forEach((Element) => {
   Element.addEventListener("click", () => {
     let isClicked = false;
+    Casting = false;
     if (prev.length) {
       retrievColor(prev.pop());
     }
@@ -77,6 +81,10 @@ allElement.forEach((Element) => {
       move_coin(prev_pos[0], prev_pos[1], row, col);
       let piece = initialSetup[row][col];
       let isblack = black_coins.includes(piece);
+      let cast = (isblack) ? BlackCasting : WhiteCasting;
+      if((piece === "♚" || piece === "♔") && col === 6 && cast){
+        move_coin(row , 7 , row , 5);
+      }
       if ((piece === "♟" && row === 7) || (piece === "♙" && row === 0)) {
         show_change_option(row, col, isblack);
       }
@@ -91,6 +99,8 @@ allElement.forEach((Element) => {
           }
         }
       }
+      removeCasting(piece, prev[0], prev[1], isblack);
+
       move_count++;
       update_coin();
     }
@@ -368,7 +378,8 @@ function king_possible_move(row, col, isChecking, isCheckMate) {
             }
           }
         }
-      } else if (isblack !== black_coins.includes(piece)) {
+      } 
+      else if (isblack !== black_coins.includes(piece)) {
         if (!isChecking) {
           move_coin(row, col, r, c);
           let isCheck_pos = checking_check_pos(isblack);
@@ -387,6 +398,10 @@ function king_possible_move(row, col, isChecking, isCheckMate) {
         }
       }
     }
+  }
+  
+  if(!isCheckMate && !isChecking){
+    casting(row , col , isblack);
   }
   if (isCheckMate) return true;
   return Check;
@@ -528,7 +543,7 @@ function find_check_mate(isblack) {
   return true;
 }
 
-function show_change_option(row, col , isblack)  {
+function show_change_option(row, col, isblack) {
   let swap;
   if (isblack) {
     swap = document.querySelector(".black_swap");
@@ -542,7 +557,7 @@ function show_change_option(row, col , isblack)  {
   let temp = document.querySelector(`[data-row = "${row}"][data-col = "${col}"]`);
   for (let child of swap_img) {
     let element = child.querySelector("img");
-    element.addEventListener("click" , () => {
+    element.addEventListener("click", () => {
       let piece = element.dataset.value;
       initialSetup[row][col] = piece;
       temp.textContent = piece;
@@ -563,6 +578,49 @@ function update_coin() {
   }
 }
 
+function casting(row, col, isblack) {
+  let is_in_initial_pos = (isblack) ? BlackCasting : WhiteCasting;
+  
+  if (is_in_initial_pos) {
+    let king = initialSetup[row][col];
+    let rook = initialSetup[row][7];
+    let check = checking_check_pos(isblack);
+    col++;
+    while (col < 7 && initialSetup[row][col] === "" && !check) {
+      move_coin(row, col - 1, row, col);
+      check = checking_check_pos(isblack);
+      col++;
+    }
+    if(col > 5)
+      move_coin(row , col - 1 , row , 4);
+    if (!check && col === 7) {
+      initialSetup[row][4] = king;
+      initialSetup[row][7] = rook;
+      let pos2 = document.querySelector(`[data-row = "${row}"][data-col = "${6}"]`);
+      highlight(pos2);
+      prev.push(pos2);
+    }
+
+  }
+}
+function removeCasting(piece, row, col, isblack) {
+  if (!BlackCasting && !WhiteCasting) return;
+  if (piece === "♚" || piece === "♔") {
+    if (isblack) {
+      BlackCasting = false;
+    }
+    else {
+      WhiteCasting = false;
+    }
+  }
+  if (isblack && row === 7 && col === 7) {
+    BlackCasting = false;
+  }
+  else if (isblack && row == 0 && col === 0) {
+    WhiteCasting = false;
+  }
+
+}
 function highlight(element) {
   let high = document.createElement("div");
   high.classList = "highlight";
@@ -570,7 +628,7 @@ function highlight(element) {
 }
 
 function tilt(element) {
-  element.style.fontSize = "3.5rem";
+  element.style.fontSize = "10vmin";
 }
 function coin_kill_highlight(element) {
   element.style.backgroundColor = "brown";
@@ -580,7 +638,7 @@ function check_highlight(element) {
 }
 function retrievColor(element) {
   element.style.backgroundColor = "";
-  element.style.fontSize = "2.7rem";
+  element.style.fontSize = "7.5vmin";
   let high = element.querySelector(".highlight");
   if (high) element.removeChild(high);
 }
