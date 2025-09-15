@@ -616,7 +616,7 @@ function removeCasting(piece, row, col, isblack) {
   if (isblack && row === 7 && col === 7) {
     BlackCasting = false;
   }
-  else if (isblack && row == 0 && col === 0) {
+  else if (!isblack && row == 0 && col === 0) {
     WhiteCasting = false;
   }
 
